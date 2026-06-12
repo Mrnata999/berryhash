@@ -1,0 +1,252 @@
+/* ============================================
+   BerryHash - Stylesheet
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&amp;family=Press+Start+2P&amp;display=swap');
+
+body { 
+    font-family: 'Poppins', system_ui, sans-serif; 
+    background-image: url('https://png.pngtree.com/thumb_back/fh260/background/20241213/pngtree-colorful-countryside-farm-cartoon-landscape-image_16779037.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+/* Overlay para que el contenido se lea bien */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255, 248, 240, 0.78);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.berry-card { 
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+               box-shadow 0.2s ease,
+               border-color 0.2s ease;
+    box-shadow: 0 4px 15px -3px rgb(0 0 0 / 0.06), 0 2px 6px -2px rgb(0 0 0 / 0.05);
+}
+
+.berry-card:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 12px 28px -6px rgb(0 0 0 / 0.09), 0 5px 12px -3px rgb(0 0 0 / 0.08);
+    border-color: #fda4af;
+}
+
+.plot { 
+    transition: all 0.3s ease; 
+    position: relative; 
+    overflow: hidden; 
+}
+
+.strawberry {
+    font-size: 3.8rem; 
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s ease;
+    display: inline-block; 
+    line-height: 1;
+}
+
+.strawberry.growing { 
+    transform: scale(0.65); 
+    filter: grayscale(0.2) brightness(0.95); 
+}
+
+.strawberry.ready { 
+    animation: ready-bob 1.55s infinite ease-in-out;
+    filter: drop-shadow(0 0 16px rgb(52 211 153 / 0.6));
+    transform: scale(1.08);
+}
+
+.strawberry.wilting {
+    filter: saturate(0.5) brightness(0.8);
+}
+
+.strawberry.pest {
+    animation: shake 0.5s infinite;
+    filter: hue-rotate(300deg) saturate(0.65);
+}
+
+@keyframes ready-bob {
+    0%, 100% { transform: translateY(0) scale(1.08); }
+    50% { transform: translateY(-6px) scale(1.12); }
+}
+
+.strawberry.wilting { 
+    transform: scale(0.9); 
+    filter: grayscale(0.7) brightness(0.75) sepia(0.3); 
+    animation: wilt-shake 2s infinite; 
+}
+
+.strawberry.pest { 
+    animation: pest-shake 0.6s infinite; 
+}
+
+@keyframes bounce-ready { 
+    0%, 100% { transform: scale(1.2); } 
+    50% { transform: scale(1.35); } 
+}
+
+@keyframes wilt-shake { 
+    0%, 100% { transform: scale(0.9) rotate(-1deg); } 
+    50% { transform: scale(0.9) rotate(1deg); } 
+}
+
+@keyframes pest-shake { 
+    0%, 100% { transform: translateX(0); } 
+    25% { transform: translateX(-3px); } 
+    75% { transform: translateX(3px); } 
+}
+
+.plot.empty { 
+    background: linear-gradient(145deg, #f8f1e3, #f0e4d0); 
+}
+
+.plot.locked { 
+    background: #f8fafc; 
+    border-style: dashed; 
+}
+
+.floating-text { 
+    position: absolute; 
+    animation: floatUp 1.4s forwards; 
+    pointer-events: none; 
+    z-index: 100; 
+    font-weight: 800; 
+    text-shadow: 0 3px 8px rgba(0,0,0,0.25); 
+}
+
+@keyframes floatUp { 
+    0% { opacity: 1; transform: translateY(0) scale(1); } 
+    100% { opacity: 0; transform: translateY(-90px) scale(0.6); } 
+}
+
+.nav-tab {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-tab.active {
+    background-color: #059669;
+    color: white;
+    box-shadow: 0 4px 14px -2px rgb(5 150 105 / 0.35);
+    transform: translateY(-1px);
+}
+
+.nav-tab:not(.active):hover {
+    background-color: #f0fdf4;
+    transform: translateY(-1px);
+}
+
+.game-container { 
+    max-width: 1180px; 
+    margin: 0 auto; 
+}
+
+.stat-box { 
+    background: white; 
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); 
+}
+
+.berry-glow { 
+    box-shadow: 0 0 15px rgb(225 29 72 / 0.15); 
+}
+
+.mini-game-hole { 
+    width: 58px; 
+    height: 58px; 
+    background: #166534; 
+    border-radius: 9999px; 
+    position: relative; 
+    cursor: pointer; 
+    box-shadow: inset 0 4px 8px rgba(0,0,0,0.4); 
+    border: 3px solid #14532d; 
+}
+
+.mini-bug { 
+    position: absolute; 
+    font-size: 2.1rem; 
+    transition: transform 0.1s ease; 
+    user-select: none; 
+    z-index: 10; 
+}
+
+.mini-bug.hit { 
+    transform: scale(0.3) !important; 
+    opacity: 0.3; 
+}
+
+.coin-btn { 
+    transition: all 0.2s ease; 
+}
+
+.coin-btn.active { 
+    border-color: #e11d48; 
+    background-color: #fff1f2; 
+}
+
+.video-card { 
+    transition: all 0.3s ease; 
+}
+
+.video-card:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); 
+}
+
+.fake-video {
+    background: linear-gradient(135deg, #1e2937, #0f172a);
+    position: relative;
+    overflow: hidden;
+}
+
+.fake-video::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer { 
+    0% { transform: translateX(-100%); } 
+    100% { transform: translateX(300%); } 
+}
+
+.solana-btn {
+    background: linear-gradient(135deg, #9945FF, #14F195);
+    color: white;
+    font-weight: 800;
+}
+
+.mission-card {
+    transition: all 0.2s ease;
+}
+
+.streak-flame {
+    animation: flame-flicker 1.5s infinite ease-in-out;
+}
+
+@keyframes flame-flicker {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Raid animation styles */
+.strawberry-plant {
+    display: inline-block;
+    animation: sway 2.8s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+
+@keyframes sway {
+    0%, 100% { transform: rotate(-6deg); }
+    50% { transform: rotate(6deg); }
+}
+
+@keyframes steal {
+    0%, 100% { transform: translateY(0) scale(1); }
+    40% { transform: translateY(-12px) scale(0.95); }
+    60% { transform: translateY(-8px) scale(1.05); }
+}
