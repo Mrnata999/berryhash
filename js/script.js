@@ -210,7 +210,43 @@ const TESTING_MODE = true;
             
             container.innerHTML = html;
         }
+// ==================== VENDER PLANTA ====================
+function sellPlant(index) {
+    const plot = gameState.plots[index];
+    if (!plot || !plot.type) return;
 
+    const plantType = plot.type;
+    const plantData = berryTypes[plantType];
+    if (!plantData) return;
+
+    // Precio original de la planta
+    const originalPrice = plantData.price;
+    
+    // 70% de devolución
+    const sellValue = Math.floor(originalPrice * 0.70);
+
+    // Confirmación
+    if (!confirm(`¿Quieres vender tu ${plantData.name}?\n\nRecibirás: $${sellValue} USDC (70% del valor)`)) {
+        return;
+    }
+
+    // Dar el dinero al jugador
+    gameState.usdc += sellValue;
+
+    // Quitar la planta
+    plot.type = null;
+    plot.plantedAt = null;
+    plot.lastWatered = null;
+    plot.lastHarvest = null;
+    plot.hasPest = false;
+    plot.isWelcomePlant = false;
+
+    saveGame();
+    updateBalances();
+    renderPlots();
+
+    showToast(`Vendiste ${plantData.name} → +$${sellValue} USDC`, 'success');
+}
         // ==================== LOGIN STREAK ====================
         function checkAndUpdateStreak() {
             const today = new Date().toDateString();
@@ -345,142 +381,150 @@ const TESTING_MODE = true;
             return berryTypes[type].emoji;
         }
 
-        function renderPlots() {
-            const container = document.getElementById('plots-grid');
-            container.innerHTML = '';
-            
-            updateFarmStats(); // Update top stats bar + Espantapájaros status
-            
-            // === Check for expired welcome Frutilla Bebé (12 days) ===
-            const now = Date.now();
-            const WELCOME_PLANT_LIFETIME = 12 * 24 * 60 * 60 * 1000; // 12 days
-            
-            for (let i = 0; i < gameState.plots.length; i++) {
-                const plot = gameState.plots[i];
-                if (plot.isWelcomePlant && plot.plantedAt && plot.type === 'baby') {
-                    if (now - plot.plantedAt > WELCOME_PLANT_LIFETIME) {
-                        plot.type = null;
-                        plot.plantedAt = null;
-                        plot.lastWatered = null;
-                        plot.lastHarvest = null;
-                        plot.hasPest = false;
-                        plot.isWelcomePlant = false;
-                        
-                        if (!gameState.welcomePlantExpiredNotified) {
-                            gameState.welcomePlantExpiredNotified = true;
-                            saveGame();
-                            setTimeout(() => {
-                                showToast("Tu Frutilla Bebé gratis se murió después de 12 días.", 'error');
-                            }, 400);
-                        }
-                    }
+   function renderPlots() {
+    const container = document.getElementById('plots-grid');
+    container.innerHTML = '';
+   
+    updateFarmStats();
+
+    // === Check for expired welcome Frutilla Bebé (12 days) ===
+    const now = Date.now();
+    const WELCOME_PLANT_LIFETIME = 12 * 24 * 60 * 60 * 1000;
+
+    for (let i = 0; i < gameState.plots.length; i++) {
+        const plot = gameState.plots[i];
+        if (plot.isWelcomePlant && plot.plantedAt && plot.type === 'baby') {
+            if (now - plot.plantedAt > WELCOME_PLANT_LIFETIME) {
+                plot.type = null;
+                plot.plantedAt = null;
+                plot.lastWatered = null;
+                plot.lastHarvest = null;
+                plot.hasPest = false;
+                plot.isWelcomePlant = false;
+               
+                if (!gameState.welcomePlantExpiredNotified) {
+                    gameState.welcomePlantExpiredNotified = true;
+                    saveGame();
+                    setTimeout(() => {
+                        showToast("Tu Frutilla Bebé gratis se murió después de 12 días.", 'error');
+                    }, 400);
                 }
-            }
-            
-            const now2 = Date.now();
-
-            for (let i = 0; i < MAX_PLOTS; i++) {
-                const plot = gameState.plots[i];
-                const isUnlocked = i < gameState.unlockedPlots;
-                const card = document.createElement('div');
-                let html = '';
-
-                if (!isUnlocked) {
-                    card.className = `plot locked berry-card border-2 border-dashed border-emerald-200 rounded-3xl p-5 flex flex-col items-center justify-center min-h-[215px]`;
-                    html = `
-                        <div class="text-center"><i class="fa-solid fa-lock text-4xl text-emerald-300 mb-3"></i><div class="font-extrabold text-emerald-600">Parcela bloqueada</div></div>
-                        <button onclick="buyNewPlotWithUSDC()" class="mt-5 px-8 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold rounded-3xl">Comprar por ${PLOT_COSTS_USDC[i]} USDC</button>
-                    `;
-                } else if (!plot.type) {
-                    card.className = `plot empty berry-card border border-emerald-100 rounded-3xl p-5 flex flex-col min-h-[215px]`;
-                    html = `
-                        <div class="flex-1 flex flex-col items-center justify-center text-center"><div class="text-7xl mb-1 opacity-30">🪴</div><div class="font-extrabold text-xl text-emerald-300">Parcela lista</div></div>
-                        <button onclick="showPlantModal(${i})" class="mt-auto w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-3xl flex items-center justify-center gap-x-2"><i class="fa-solid fa-plus"></i> <span>Plantar</span></button>
-                    `;
-                } else {
-                    const berry = berryTypes[plot.type];
-                    const lastHarvest = plot.lastHarvest || plot.plantedAt || now;
-                    const timeSinceHarvest = now - lastHarvest;
-                    const isReadyToHarvest = timeSinceHarvest >= berry.harvestCooldown;
-                    
-                    let timeLeftText = '';
-                    if (!isReadyToHarvest) {
-                        const remaining = berry.harvestCooldown - timeSinceHarvest;
-                        const h = Math.floor(remaining / 3600000);
-                        const m = Math.floor((remaining % 3600000) / 60000);
-                        timeLeftText = h > 0 ? `${h}h ${m}m` : `${m}m`;
-                    }
-                    
-                    const isWilting = !plot.lastWatered || (now - plot.lastWatered) > (berry.harvestCooldown * 1.5);
-                    let statusClass = isReadyToHarvest ? 'ready' : isWilting ? 'wilting' : plot.hasPest ? 'pest' : '';
-
-                    card.className = `plot berry-card bg-white border border-emerald-100 rounded-3xl p-4 flex flex-col min-h-[215px] ${isReadyToHarvest ? 'berry-glow' : ''}`;
-                    
-                    html = `
-                        <div class="flex justify-between items-start mb-1">
-                            <div class="text-xs px-3 py-0.5 rounded-full font-extrabold bg-emerald-100 text-emerald-700">${berry.name}</div>
-                            <span class="font-mono text-xs font-extrabold text-emerald-600">+${berry.harvestReward} USDC</span>
-                        </div>
-                        
-                        <div class="flex-1 flex flex-col items-center justify-center relative py-2">
-                            <span class="strawberry ${statusClass}" style="font-size:4.1rem; color:${isWilting ? '#854d0e' : 'inherit'}">
-                                ${berry.emoji}
-                                <!-- Global scarecrow upgrade applies to all plants -->
-                            </span>
-                            
-                            <div class="mt-2 text-center">
-                                ${isReadyToHarvest ? 
-                                    `<div class="text-emerald-500 font-extrabold text-sm">¡LISTA PARA COSECHAR!</div>` : 
-                                    `<div class="text-xs text-emerald-400">Próxima cosecha en<br><span class="font-mono font-bold">${timeLeftText}</span></div>`
-                                }
-                            </div>
-                            
-                            <!-- Water status bar with hours remaining -->
-                            ${plot.lastWatered ? (() => {
-                                const berry = berryTypes[plot.type];
-                                const timeSinceWater = now - plot.lastWatered;
-                                const waterThreshold = berry.harvestCooldown * 1.5;
-                                const remainingMs = Math.max(0, waterThreshold - timeSinceWater);
-                                const remainingHours = (remainingMs / 3600000).toFixed(1);
-                                
-                                const waterPercent = Math.max(5, Math.min(100, (remainingMs / waterThreshold) * 100));
-                                const waterColor = waterPercent > 50 ? 'bg-sky-400' : waterPercent > 20 ? 'bg-yellow-400' : 'bg-red-400';
-                                
-                                return `
-                                    <div class="mt-2 px-1">
-                                        <div class="flex justify-between text-[10px] text-sky-600 mb-0.5 font-medium">
-                                            <span>💧 Agua</span>
-                                            <span class="font-mono font-extrabold text-sky-700">${remainingHours}h</span>
-                                        </div>
-                                        <div class="h-2.5 bg-sky-100 rounded-full overflow-hidden border border-sky-200">
-                                            <div class="h-2.5 transition-all duration-300 ${waterColor}" style="width: ${waterPercent}%"></div>
-                                        </div>
-                                    </div>
-                                `;
-                            })() : 
-                            `<div class="text-[10px] text-orange-500 font-bold mt-1">💧 Nunca regada</div>`
-                            }
-                        </div>
-                        
-                        <div class="mt-auto">
-                            ${isReadyToHarvest ? 
-                                `<button onclick="harvestPlot(${i}, event)" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-3xl flex items-center justify-center gap-x-2"><i class="fa-solid fa-hand-holding-heart"></i> COSECHAR</button>` :
-                                `<div class="flex gap-x-2">
-                                    <button onclick="waterPlot(${i})" class="flex-1 py-2 text-xs font-extrabold bg-sky-100 hover:bg-sky-200 text-sky-700 rounded-3xl flex items-center justify-center gap-x-1.5"><i class="fa-solid fa-tint"></i> <span>Regar</span></button>
-                                    <!-- Proteger button removed - protection is now global via Espantapájaros upgrade -->
-                                    <button onclick="removePlant(${i}, event)" class="px-3 py-2 text-xs font-extrabold bg-red-100 hover:bg-red-200 text-red-600 rounded-3xl flex items-center justify-center active:scale-90 transition-transform" title="Quitar planta"><i class="fa-solid fa-trash"></i></button>
-<button onclick="sellPlant(${i})" class="px-3 py-2 text-xs font-extrabold bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-3xl flex items-center justify-center active:scale-90 transition-transform" title="Vender planta">
-        <i class="fa-solid fa-dollar-sign"></i>
-    </button>
-                                </div>`
-                            }
-                        </div>
-                    `;
-                }
-                card.innerHTML = html;
-                container.appendChild(card);
             }
         }
+    }
+   
+    const now2 = Date.now();
+
+    for (let i = 0; i < MAX_PLOTS; i++) {
+        const plot = gameState.plots[i];
+        const isUnlocked = i < gameState.unlockedPlots;
+        const card = document.createElement('div');
+        let html = '';
+
+        if (!isUnlocked) {
+            card.className = `plot locked berry-card border-2 border-dashed border-emerald-200 rounded-3xl p-5 flex flex-col items-center justify-center min-h-[215px]`;
+            html = `
+                <div class="text-center"><i class="fa-solid fa-lock text-4xl text-emerald-300 mb-3"></i><div class="font-extrabold text-emerald-600">Parcela bloqueada</div></div>
+                <button onclick="buyNewPlotWithUSDC()" class="mt-5 px-8 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold rounded-3xl">Comprar por ${PLOT_COSTS_USDC[i]} USDC</button>
+            `;
+        } 
+        else if (!plot.type) {
+            card.className = `plot empty berry-card border border-emerald-100 rounded-3xl p-5 flex flex-col min-h-[215px]`;
+            html = `
+                <div class="flex-1 flex flex-col items-center justify-center text-center"><div class="text-7xl mb-1 opacity-30">🪴</div><div class="font-extrabold text-xl text-emerald-300">Parcela lista</div></div>
+                <button onclick="showPlantModal(${i})" class="mt-auto w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-3xl flex items-center justify-center gap-x-2"><i class="fa-solid fa-plus"></i> <span>Plantar</span></button>
+            `;
+        } 
+        else {
+            const berry = berryTypes[plot.type];
+            const lastHarvest = plot.lastHarvest || plot.plantedAt || now;
+            const timeSinceHarvest = now - lastHarvest;
+            const isReadyToHarvest = timeSinceHarvest >= berry.harvestCooldown;
+           
+            let timeLeftText = '';
+            if (!isReadyToHarvest) {
+                const remaining = berry.harvestCooldown - timeSinceHarvest;
+                const h = Math.floor(remaining / 3600000);
+                const m = Math.floor((remaining % 3600000) / 60000);
+                timeLeftText = h > 0 ? `${h}h ${m}m` : `${m}m`;
+            }
+           
+            const isWilting = !plot.lastWatered || (now - plot.lastWatered) > (berry.harvestCooldown * 1.5);
+            let statusClass = isReadyToHarvest ? 'ready' : isWilting ? 'wilting' : plot.hasPest ? 'pest' : '';
+
+            card.className = `plot berry-card bg-white border border-emerald-100 rounded-3xl p-4 flex flex-col min-h-[215px] ${isReadyToHarvest ? 'berry-glow' : ''}`;
+           
+            html = `
+                <div class="flex justify-between items-start mb-1">
+                    <div class="text-xs px-3 py-0.5 rounded-full font-extrabold bg-emerald-100 text-emerald-700">${berry.name}</div>
+                    <span class="font-mono text-xs font-extrabold text-emerald-600">+${berry.harvestReward} USDC</span>
+                </div>
+               
+                <div class="flex-1 flex flex-col items-center justify-center relative py-2">
+                    <span class="strawberry ${statusClass}" style="font-size:4.1rem; color:${isWilting ? '#854d0e' : 'inherit'}">
+                        ${berry.emoji}
+                    </span>
+                   
+                    <div class="mt-2 text-center">
+                        ${isReadyToHarvest 
+                            ? `<div class="text-emerald-500 font-extrabold text-sm">¡LISTA PARA COSECHAR!</div>` 
+                            : `<div class="text-xs text-emerald-400">Próxima cosecha en<br><span class="font-mono font-bold">${timeLeftText}</span></div>`
+                        }
+                    </div>
+                   
+                    <!-- Water status bar -->
+                    ${plot.lastWatered ? (() => {
+                        const berry = berryTypes[plot.type];
+                        const timeSinceWater = now - plot.lastWatered;
+                        const waterThreshold = berry.harvestCooldown * 1.5;
+                        const remainingMs = Math.max(0, waterThreshold - timeSinceWater);
+                        const remainingHours = (remainingMs / 3600000).toFixed(1);
+                       
+                        const waterPercent = Math.max(5, Math.min(100, (remainingMs / waterThreshold) * 100));
+                        const waterColor = waterPercent > 50 ? 'bg-sky-400' : waterPercent > 20 ? 'bg-yellow-400' : 'bg-red-400';
+                       
+                        return `
+                            <div class="mt-2 px-1">
+                                <div class="flex justify-between text-[10px] text-sky-600 mb-0.5 font-medium">
+                                    <span>💧 Agua</span>
+                                    <span class="font-mono font-extrabold text-sky-700">${remainingHours}h</span>
+                                </div>
+                                <div class="h-2.5 bg-sky-100 rounded-full overflow-hidden border border-sky-200">
+                                    <div class="h-2.5 transition-all duration-300 ${waterColor}" style="width: ${waterPercent}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    })() : 
+                    `<div class="text-[10px] text-orange-500 font-bold mt-1">💧 Nunca regada</div>`
+                    }
+                </div>
+               
+                <div class="mt-auto">
+                    ${isReadyToHarvest 
+                        ? `<button onclick="harvestPlot(${i}, event)" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-3xl flex items-center justify-center gap-x-2"><i class="fa-solid fa-hand-holding-heart"></i> COSECHAR</button>` 
+                        : `<div class="flex gap-x-2">
+                            <button onclick="waterPlot(${i})" class="flex-1 py-2 text-xs font-extrabold bg-sky-100 hover:bg-sky-200 text-sky-700 rounded-3xl flex items-center justify-center gap-x-1.5">
+                                <i class="fa-solid fa-tint"></i> <span>Regar</span>
+                            </button>
+                            
+                            <!-- Botón Vender Planta -->
+                            <button onclick="sellPlant(${i})" class="px-3 py-2 text-xs font-extrabold bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-3xl flex items-center justify-center active:scale-90 transition-transform" title="Vender planta">
+                                <i class="fa-solid fa-dollar-sign"></i>
+                            </button>
+                            
+                            <!-- Botón Quitar Planta -->
+                            <button onclick="removePlant(${i}, event)" class="px-3 py-2 text-xs font-extrabold bg-red-100 hover:bg-red-200 text-red-600 rounded-3xl flex items-center justify-center active:scale-90 transition-transform" title="Quitar planta">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                          </div>`
+                    }
+                </div>
+            `;
+        }
+        card.innerHTML = html;
+        container.appendChild(card);
+    }
+}
 
         function startLiveUpdate() {
             setInterval(() => {
