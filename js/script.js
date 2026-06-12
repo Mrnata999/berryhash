@@ -464,6 +464,9 @@ const TESTING_MODE = true;
                         
                         <div class="mt-auto">
                             ${isReadyToHarvest ? 
+                              <button onclick="sellPlant(${i})" class="px-3 py-2 text-xs font-extrabold bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-3xl flex items-center justify-center active:scale-90 transition-transform" title="Vender planta">
+                             <i class="fa-solid fa-dollar-sign"></i>
+                             </button>
                                 `<button onclick="harvestPlot(${i}, event)" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-3xl flex items-center justify-center gap-x-2"><i class="fa-solid fa-hand-holding-heart"></i> COSECHAR</button>` :
                                 `<div class="flex gap-x-2">
                                     <button onclick="waterPlot(${i})" class="flex-1 py-2 text-xs font-extrabold bg-sky-100 hover:bg-sky-200 text-sky-700 rounded-3xl flex items-center justify-center gap-x-1.5"><i class="fa-solid fa-tint"></i> <span>Regar</span></button>
