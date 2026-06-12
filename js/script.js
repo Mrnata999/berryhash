@@ -548,7 +548,43 @@ const TESTING_MODE = true;
             if (!plot.lastWatered || (now - plot.lastWatered) > (berry.harvestCooldown * 1.8)) {
                 reward *= 0.35;
             }
-            
+            // ==================== VENDER PLANTA ====================
+function sellPlant(index) {
+    const plot = gameState.plots[index];
+    if (!plot || !plot.type) return;
+
+    const plantType = plot.type;
+    const plantData = berryTypes[plantType];
+    if (!plantData) return;
+
+    // Precio original de la planta
+    const originalPrice = plantData.price;
+    
+    // 70% de devolución
+    const sellValue = Math.floor(originalPrice * 0.70);
+
+    // Confirmación
+    if (!confirm(`¿Quieres vender tu ${plantData.name}?\n\nRecibirás: $${sellValue} USDC (70% del valor)`)) {
+        return;
+    }
+
+    // Dar el dinero al jugador
+    gameState.usdc += sellValue;
+
+    // Quitar la planta
+    plot.type = null;
+    plot.plantedAt = null;
+    plot.lastWatered = null;
+    plot.lastHarvest = null;
+    plot.hasPest = false;
+    plot.isWelcomePlant = false;
+
+    saveGame();
+    updateBalances();
+    renderPlots();
+
+    showToast(`Vendiste ${plantData.name} → +$${sellValue} USDC`, 'success');
+}
             // Global Espantapájaros upgrade protects all plants
             if (gameState.upgrades && gameState.upgrades.hasScarecrow) {
                 reward = berry.harvestReward * 0.93; // Only ~7% loss
