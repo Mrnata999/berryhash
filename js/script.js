@@ -219,92 +219,87 @@ function sellPlant(index) {
     const plantData = berryTypes[plantType];
     if (!plantData) return;
 
-    // Precio original de la planta
     const originalPrice = plantData.price;
-    
-    // 70% de devolución
     const sellValue = Math.floor(originalPrice * 0.70);
 
-    // Confirmación
-    if (!confirm(`¿Quieres vender tu ${plantData.name}?\n\nRecibirás: $${sellValue} USDC (70% del valor)`)) {
-        return;
-    }
+    // Crear modal personalizado
+    const modal = document.createElement('div');
+    modal.className = `fixed inset-0 bg-black/70 flex items-center justify-center z-[800] p-4`;
 
-    // Dar el dinero al jugador
-    gameState.usdc += sellValue;
+    modal.innerHTML = `
+        <div class="bg-white rounded-3xl w-full max-w-sm mx-4 overflow-hidden shadow-2xl">
+            
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-yellow-500 to-amber-600 px-6 py-4 text-white">
+                <div class="flex items-center gap-x-3">
+                    <i class="fa-solid fa-dollar-sign text-2xl"></i>
+                    <div class="font-extrabold text-xl">Vender Planta</div>
+                </div>
+            </div>
 
-    // Quitar la planta
-    plot.type = null;
-    plot.plantedAt = null;
-    plot.lastWatered = null;
-    plot.lastHarvest = null;
-    plot.hasPest = false;
-    plot.isWelcomePlant = false;
+            <div class="p-6 text-center">
+                <!-- Info de la planta -->
+                <div class="mb-5">
+                    <div class="text-6xl mb-3">${plantData.emoji}</div>
+                    <div class="font-extrabold text-2xl text-slate-800">${plantData.name}</div>
+                    <div class="text-sm text-slate-500 mt-1">Precio original: $${originalPrice} USDC</div>
+                </div>
 
-    saveGame();
-    updateBalances();
-    renderPlots();
+                <!-- Monto a recibir -->
+                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 mb-6">
+                    <div class="text-sm text-emerald-600 font-bold">Recibirás</div>
+                    <div class="font-black text-4xl text-emerald-700">$${sellValue} <span class="text-xl">USDC</span></div>
+                    <div class="text-xs text-emerald-600 mt-1">(70% del valor original)</div>
+                </div>
 
-    showToast(`Vendiste ${plantData.name} → +$${sellValue} USDC`, 'success');
+                <div class="text-xs text-slate-500 mb-6">
+                    La planta será eliminada de tu parcela permanentemente.
+                </div>
+
+                <!-- Botones -->
+                <div class="flex gap-x-3">
+                    <button id="cancel-sell" 
+                            class="flex-1 py-3.5 border border-slate-300 text-slate-600 font-extrabold rounded-3xl hover:bg-slate-50">
+                        Cancelar
+                    </button>
+                    
+                    <button id="confirm-sell" 
+                            class="flex-1 py-3.5 bg-yellow-500 hover:bg-yellow-600 text-white font-extrabold rounded-3xl flex items-center justify-center gap-x-2">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                        <span>Vender</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Eventos de los botones
+    modal.querySelector('#cancel-sell').onclick = () => {
+        modal.remove();
+    };
+
+    modal.querySelector('#confirm-sell').onclick = () => {
+        modal.remove();
+
+        // Ejecutar la venta
+        gameState.usdc += sellValue;
+
+        plot.type = null;
+        plot.plantedAt = null;
+        plot.lastWatered = null;
+        plot.lastHarvest = null;
+        plot.hasPest = false;
+        plot.isWelcomePlant = false;
+
+        saveGame();
+        updateBalances();
+        renderPlots();
+
+        showToast(`Vendiste ${plantData.name} → +$${sellValue} USDC`, 'success');
+    };
 }
-        // ==================== LOGIN STREAK ====================
-        function checkAndUpdateStreak() {
-            const today = new Date().toDateString();
-            
-            if (!gameState.lastLoginDate) {
-                gameState.lastLoginDate = today;
-                gameState.loginStreak = 1;
-                return;
-            }
-            
-            if (gameState.lastLoginDate === today) {
-                return;
-            }
-            
-            const lastDate = new Date(gameState.lastLoginDate);
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            
-            if (lastDate.toDateString() === yesterday.toDateString()) {
-                gameState.loginStreak = (gameState.loginStreak || 1) + 1;
-            } else {
-                gameState.loginStreak = 1;
-            }
-            
-            gameState.lastLoginDate = today;
-            saveGame();
-        }
-
-        function getStreakReward(streak) {
-            if (streak >= 7) return { usdc: 3.5, water: 25 };
-            if (streak >= 5) return { usdc: 2.5, water: 18 };
-            if (streak >= 3) return { usdc: 1.8, water: 12 };
-            return { usdc: 1.0, water: 8 };
-        }
-
-        function claimStreakReward() {
-            const today = new Date().toDateString();
-            
-            if (gameState.lastStreakClaim === today) {
-                showToast("Ya reclamaste la recompensa de racha hoy", "error");
-                return;
-            }
-            
-            const reward = getStreakReward(gameState.loginStreak || 1);
-            
-            gameState.usdc += reward.usdc;
-            gameState.water += reward.water;
-            gameState.lastStreakClaim = today;
-            
-            saveGame();
-            updateBalances();
-            
-            showToast(`¡Racha de ${gameState.loginStreak} días! +${reward.usdc} USDC + ${reward.water} Agua`, 'success');
-            
-            if (!document.getElementById('content-missions').classList.contains('hidden')) {
-                renderMissions();
-            }
-        }
 
         function updateStreakDisplay() {
             const countEl = document.getElementById('streak-count');
