@@ -1,125 +1,729 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BerryHash • Siembra • Riega • Gana</title>
-    
-    <!-- Tailwind CSS -->
+    <title>BerryHash • Cultiva Frutillas • Gana USDC</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Custom Styles -->
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-[#fff8f0] text-slate-800">
+<body class="bg-[#fffaf0] text-slate-800 pt-[38px] md:pt-[42px]">
 
-    <!-- Top Bar -->
-    <div class="bg-white border-b border-emerald-100 sticky top-0 z-50">
-        <div class="max-w-[1180px] mx-auto px-6 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-x-3">
-                <div class="flex items-center gap-x-2">
-                    <span class="text-3xl">🍓</span>
-                    <div>
-                        <span class="font-extrabold text-2xl tracking-tight">BerryHash</span>
-                    </div>
+    <!-- Fake Activity Feed (Social Proof) - More Visible -->
+    <div id="activity-feed" class="fixed top-0 left-0 right-0 z-[800] bg-emerald-950 border-b-2 border-emerald-700 shadow-lg hidden md:block">
+        <div class="max-w-6xl mx-auto px-5 py-[9px]">
+            <div class="flex items-center gap-x-3 text-sm">
+                <div class="flex items-center gap-x-2 text-emerald-400 font-extrabold whitespace-nowrap">
+                    <span class="text-base">📈</span>
+                    <span>Actividad en vivo</span>
                 </div>
-                <div class="hidden md:flex items-center gap-x-1.5 text-xs px-3 py-1 bg-emerald-50 text-emerald-700 rounded-2xl font-medium">
-                    <i class="fa-solid fa-globe fa-sm"></i>
-                    <span>v2.5</span>
+                <div id="activity-list" class="flex-1 flex items-center gap-x-5 overflow-hidden text-emerald-100 text-[13px]">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Top Bar -->
+    <div class="bg-white border-b border-rose-100 sticky top-0 z-50">
+        <div class="max-w-[1180px] mx-auto px-6 py-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-x-3">
+                <div class="flex items-center gap-x-2.5">
+                    <div class="w-11 h-11 bg-gradient-to-br from-rose-600 via-red-600 to-rose-700 rounded-2xl flex items-center justify-center shadow-inner relative">
+                        <span class="text-4xl drop-shadow">🍓</span>
+                        <div class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center ring-2 ring-white">
+                            <span class="text-[9px] font-black text-yellow-900">⛓</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="font-black text-[2.35rem] tracking-[-2.5px] bg-gradient-to-r from-rose-700 to-red-700 bg-clip-text text-transparent">BerryHash</span>
+                    </div>
                 </div>
             </div>
 
             <div class="flex items-center gap-x-3">
-                <!-- Stats -->
-                <div class="hidden md:flex items-center gap-x-4 text-sm">
-                    <div class="flex items-center gap-x-2 bg-white border border-emerald-200 px-4 py-1.5 rounded-2xl">
-                        <i class="fa-solid fa-wallet text-emerald-600"></i>
-                        <div>
-                            <span class="font-extrabold" id="usdc-balance">124.50</span>
-                            <span class="text-xs text-emerald-600">USDC</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-x-2 bg-white border border-sky-200 px-4 py-1.5 rounded-2xl">
-                        <i class="fa-solid fa-tint text-sky-600"></i>
-                        <div>
-                            <span class="font-extrabold" id="water-balance">48</span>
-                            <span class="text-xs text-sky-600">Agua</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Wallet -->
                 <div id="wallet-section">
-                    <button onclick="connectPhantomWallet()" 
-                            class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white font-extrabold text-sm rounded-[2.25rem] flex items-center gap-x-2 active:scale-[0.985]">
-                        <i class="fa-brands fa-solana"></i>
+                    <button onclick="connectPhantomWallet()" id="connect-wallet-btn"
+                            class="flex items-center gap-x-2.5 px-5 py-2 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white font-extrabold rounded-3xl text-sm active:scale-[0.985]">
+                        <i class="fa-solid fa-wallet mr-2"></i>
                         <span>Conectar Phantom</span>
                     </button>
                 </div>
 
-                <!-- Language + VIP -->
-                <select onchange="setLanguage(this.value)" class="px-3 py-2 text-sm font-bold rounded-2xl border border-emerald-200 bg-white">
-                    <option value="es">🇪🇸 ES</option>
-                    <option value="en">🇬🇧 EN</option>
-                    <option value="zh">🇨🇳 ZH</option>
-                    <option value="fr">🇫🇷 FR</option>
-                </select>
+                <div class="flex items-center gap-x-2">
+                    <div class="bg-white border border-rose-200 shadow-sm rounded-3xl px-4 py-1 flex items-center gap-x-2">
+                        <i class="fa-solid fa-coins text-yellow-500 text-xl"></i>
+                        <div>
+                            <div class="text-[9px] text-rose-500 font-medium">USDC</div>
+                            <div id="usdc-balance" class="font-black text-2xl text-emerald-600 tabular-nums leading-none">124.50</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-sky-50 border border-sky-200 shadow-sm rounded-3xl px-4 py-1 flex items-center gap-x-2">
+                        <i class="fa-solid fa-tint text-sky-500 text-xl"></i>
+                        <div>
+                            <div class="text-[9px] text-sky-500 font-medium">AGUA</div>
+                            <div id="water-balance" class="font-black text-2xl text-sky-600 tabular-nums leading-none">48</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                <button onclick="showVIPPass()" class="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-white font-extrabold text-sm rounded-[2.25rem] flex items-center gap-x-2 active:scale-[0.985] shadow-lg">
-                    <i class="fa-solid fa-crown"></i>
-                    <span data-i18n="buy_vip">VIP Pass</span>
+    <div class="max-w-[1180px] mx-auto px-6 pt-6 pb-10">
+        
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-y-3 mb-7">
+            <div>
+                <div class="flex items-center gap-x-3 mb-1">
+                    <span class="px-4 py-1 bg-emerald-100 text-emerald-600 text-xs font-extrabold tracking-[1.5px] rounded-full">v2.5 — BerryHash</span>
+                </div>
+                <h1 class="text-6xl font-black tracking-tighter text-slate-900">BerryHash</h1>
+                <p class="text-xl text-emerald-600">Siembra • Riegar • Gana todos los días</p>
+            </div>
+            
+            <div class="flex items-center gap-x-3">
+                <!-- Streak Display -->
+                <div onclick="switchTab('missions')" class="flex items-center gap-x-2 bg-orange-100 border border-orange-200 px-4 py-2 rounded-3xl cursor-pointer hover:bg-orange-200 transition-all">
+                    <i class="fa-solid fa-fire text-orange-500 text-xl streak-flame"></i>
+                    <div>
+                        <div class="text-[10px] text-orange-600 font-medium">RACHA</div>
+                        <div id="streak-count" class="font-black text-xl text-orange-700 leading-none">7</div>
+                    </div>
+                </div>
+                
+                <button onclick="claimDailyBonus()" class="flex items-center gap-x-2.5 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.985] transition-all text-white font-extrabold rounded-3xl text-sm shadow-lg shadow-emerald-600/30">
+                    <i class="fa-solid fa-gift mr-2"></i><span>Bonus diario</span>
                 </button>
             </div>
         </div>
-    </div>
 
-    <!-- Navigation Tabs -->
-    <div class="max-w-[1180px] mx-auto px-6 pt-6">
+        <!-- Tabs -->
         <div class="flex bg-white border border-emerald-100 rounded-3xl p-1.5 shadow-sm mb-6 w-fit flex-wrap gap-1">
             <button onclick="switchTab('farm')" id="tab-farm" class="nav-tab active flex items-center gap-x-2 px-6 py-2.5 text-sm font-extrabold rounded-[2.25rem]">
-                <i class="fa-solid fa-seedling"></i><span data-i18n="tab_farm">Granja</span>
+                <i class="fa-solid fa-seedling"></i><span>Granja</span>
             </button>
-            <button onclick="switchTab('missions')" id="tab-missions" class="nav-tab flex items-center gap-x-2 px-6 py-2.5 text-sm font-extrabold rounded-[2.25rem]">
-                <i class="fa-solid fa-tasks"></i><span data-i18n="tab_missions">Misiones</span>
+            <button onclick="switchTab('missions')" id="tab-missions" class="nav-tab flex items-center gap-x-2 px-6 py-2.5 text-sm font-extrabold rounded-[2.25rem] hover:bg-blue-50 text-blue-700">
+                <i class="fa-solid fa-tasks"></i><span>Misiones</span>
             </button>
-            <button onclick="switchTab('rewards')" id="tab-rewards" class="nav-tab flex items-center gap-x-2 px-6 py-2.5 text-sm font-extrabold rounded-[2.25rem]">
-                <i class="fa-solid fa-play-circle"></i><span data-i18n="tab_videos">Ver Videos</span>
+            <button onclick="switchTab('rewards')" id="tab-rewards" class="nav-tab flex items-center gap-x-2 px-6 py-2.5 text-sm font-extrabold rounded-[2.25rem] hover:bg-rose-50 text-rose-700">
+                <i class="fa-solid fa-play-circle"></i><span>Ver Videos</span>
             </button>
-            <button onclick="switchTab('shop')" id="tab-shop" class="nav-tab flex items-center gap-x-2 px-6 py-2.5 text-sm font-extrabold rounded-[2.25rem]">
-                <i class="fa-solid fa-store"></i><span data-i18n="tab_shop">Tienda</span>
+            <button onclick="switchTab('shop')" id="tab-shop" class="nav-tab flex items-center gap-x-2 px-6 py-2.5 text-sm font-extrabold rounded-[2.25rem] hover:bg-amber-50 text-amber-700">
+                <i class="fa-solid fa-store"></i><span>Tienda</span>
             </button>
-            <button onclick="switchTab('referrals')" id="tab-referrals" class="nav-tab flex items-center gap-x-2 px-6 py-2.5 text-sm font-extrabold rounded-[2.25rem]">
-                <i class="fa-solid fa-users"></i><span data-i18n="tab_referrals">Referidos</span>
+            <button onclick="switchTab('referrals')" id="tab-referrals" class="nav-tab flex items-center gap-x-2 px-6 py-2.5 text-sm font-extrabold rounded-[2.25rem] hover:bg-cyan-50 text-cyan-700">
+                <i class="fa-solid fa-users"></i><span>Referidos</span>
             </button>
-            <button onclick="switchTab('withdrawals')" id="tab-withdrawals" class="nav-tab flex items-center gap-x-2 px-6 py-2.5 text-sm font-extrabold rounded-[2.25rem]">
-                <i class="fa-solid fa-wallet"></i><span data-i18n="tab_withdrawals">Retiros</span>
+            <button onclick="switchTab('withdrawals')" id="tab-withdrawals" class="nav-tab flex items-center gap-x-2 px-6 py-2.5 text-sm font-extrabold rounded-[2.25rem] hover:bg-slate-50 text-slate-700">
+                <i class="fa-solid fa-wallet"></i><span>Retiros</span>
             </button>
-            <button onclick="switchTab('explore')" id="tab-explore" class="nav-tab flex items-center gap-x-2 px-6 py-2.5 text-sm font-extrabold rounded-[2.25rem]">
-                <i class="fa-solid fa-search"></i><span data-i18n="tab_explore">Explorar</span>
+            <button onclick="switchTab('explore')" id="tab-explore" class="nav-tab flex items-center gap-x-2 px-6 py-2.5 text-sm font-extrabold rounded-[2.25rem] hover:bg-purple-50 text-purple-700">
+                <i class="fa-solid fa-search"></i><span>Explorar</span>
             </button>
-        </div>
-    </div>
 
-    <!-- Main Content -->
-    <div class="max-w-[1180px] mx-auto px-6 pb-12">
-        
-        <!-- FARM SECTION -->
+                <button onclick="showEarningsCalculator()" class="ml-3 px-5 py-2.5 bg-white border border-emerald-300 hover:bg-emerald-50 text-emerald-700 font-extrabold text-sm rounded-[2.25rem] flex items-center gap-x-2 active:scale-[0.985]">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span>Calculadora</span>
+                </button>
+
+                    <button onclick="showLaboratory()" class="ml-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-sm rounded-[2.25rem] flex items-center gap-x-2 active:scale-[0.985]">
+                        <i class="fa-solid fa-flask"></i>
+                        <span>Laboratorio</span>
+                    </button>
+
+                    <button onclick="showVIPPass()" class="ml-2 px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-white font-extrabold text-sm rounded-[2.25rem] flex items-center gap-x-2 active:scale-[0.985] shadow-lg">
+                        <i class="fa-solid fa-crown"></i>
+                        <span data-i18n="buy_vip">VIP Pass</span>
+                    </button>
+
+                    <!-- Language Selector -->
+                    <select onchange="setLanguage(this.value)" class="ml-2 px-3 py-2 text-sm font-bold rounded-2xl border border-emerald-200 bg-white">
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="en">🇬🇧 English</option>
+                        <option value="zh">🇨🇳 中文</option>
+                        <option value="fr">🇫🇷 Français</option>
+                    </select>
+        </div>
+
+        <!-- FARM TAB -->
         <div id="content-farm">
-            <!-- Content will be injected by JavaScript -->
-            <div class="text-center py-12">
-                <div class="animate-spin inline-block w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full"></div>
-                <p class="mt-4 text-emerald-600">Cargando granja...</p>
+            <!-- Stats + Espantapájaros Global Status -->
+            <div class="mb-4 bg-white border border-emerald-100 rounded-3xl px-5 py-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm">
+                <div class="flex items-center gap-x-5">
+                    <div>
+                        <span class="text-emerald-500">Plantas:</span> 
+                        <span id="stat-active-plants" class="font-extrabold text-emerald-700">0</span>
+                    </div>
+                    <div>
+                        <span class="text-emerald-500">Parcelas:</span> 
+                        <span id="stat-plots" class="font-extrabold text-emerald-700">0/12</span>
+                    </div>
+                </div>
+                
+                <div id="stat-scarecrow">
+                    <!-- Updated dynamically by JS -->
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between mb-4 px-1">
+                <div>
+                    <h2 class="font-extrabold text-3xl tracking-tight">Tu granja de frutillas</h2>
+                    <p class="text-sm text-slate-500">Las plantas necesitan agua • Riegalas o se secan</p>
+                </div>
+                <button onclick="harvestAll()" class="flex items-center gap-x-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 transition-all text-white font-extrabold text-sm rounded-3xl shadow">
+                    <i class="fa-solid fa-hand-holding-heart mr-1.5"></i> <span>Cosechar todo</span>
+                </button>
+            </div>
+            <div id="plots-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4"></div>
+        </div>
+
+        <!-- MISSIONS TAB -->
+        <div id="content-missions" class="hidden">
+            <div class="max-w-3xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="font-extrabold text-3xl tracking-tight">Misiones Diarias</h2>
+                        <p class="text-slate-500">Completa las misiones y gana recompensas</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-emerald-500">Se reinician en</div>
+                        <div id="missions-reset-time" class="font-extrabold text-emerald-700">23h 45m</div>
+                    </div>
+                </div>
+
+                <!-- Login Streak -->
+                <div class="bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-3xl p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-x-4">
+                            <i class="fa-solid fa-fire text-5xl streak-flame"></i>
+                            <div>
+                                <div class="text-sm opacity-80">Tu racha actual</div>
+                                <div class="font-black text-5xl" id="streak-display">7</div>
+                                <div class="text-sm opacity-80">días seguidos</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm opacity-80">Próxima recompensa</div>
+                            <div class="font-extrabold text-2xl" id="streak-reward">+12 USDC</div>
+                            <button onclick="claimStreakReward()" class="mt-2 px-6 py-2 bg-white text-orange-600 font-extrabold rounded-3xl text-sm active:scale-[0.985]">
+                                Reclamar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Missions -->
+                <div class="space-y-4" id="missions-list">
+                    <!-- Populated by JS -->
+                </div>
             </div>
         </div>
 
-        <!-- Other sections will be added similarly -->
+        <!-- REWARDS TAB -->
+        <div id="content-rewards" class="hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="font-extrabold text-3xl tracking-tight">Ver Videos → Gana Agua Gratis</h2>
+                        <p class="text-slate-500">Mira videos y recibe agua para tus plantas</p>
+                    </div>
+                    <div class="bg-white border border-sky-200 rounded-3xl px-5 py-2 text-center">
+                        <div class="text-xs text-sky-500">Videos hoy</div>
+                        <div class="font-extrabold text-2xl text-sky-700"><span id="videos-watched">2</span>/8</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="video-card berry-card bg-white border border-sky-100 rounded-3xl p-6 flex flex-col">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <div class="flex items-center gap-x-2">
+                                    <i class="fa-solid fa-play text-sky-600 text-xl"></i>
+                                    <span class="font-extrabold text-xl">Anuncio BerryHash</span>
+                                </div>
+                                <div class="text-sm text-sky-500 mt-1">15 seg • +18 Agua</div>
+                            </div>
+                        </div>
+                        <button onclick="watchVideoForWater(18, 15, this)" class="mt-auto w-full py-3.5 bg-sky-600 hover:bg-sky-700 text-white font-extrabold rounded-3xl flex items-center justify-center gap-x-2">
+                            <i class="fa-solid fa-play mr-2"></i>
+                            <span>Ver y ganar +18 Agua</span>
+                        </button>
+                    </div>
+
+                    <div class="video-card berry-card bg-white border border-emerald-100 rounded-3xl p-6 flex flex-col">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <div class="flex items-center gap-x-2">
+                                    <i class="fa-solid fa-graduation-cap text-emerald-600 text-xl"></i>
+                                    <span class="font-extrabold text-xl">Tutorial: Cómo regar bien</span>
+                                </div>
+                                <div class="text-sm text-emerald-500 mt-1">30 seg • +35 Agua</div>
+                            </div>
+                        </div>
+                        <button onclick="watchVideoForWater(35, 30, this)" class="mt-auto w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-3xl flex items-center justify-center gap-x-2">
+                            <i class="fa-solid fa-play mr-2"></i>
+                            <span>Ver tutorial (+35 Agua)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SHOP TAB -->
+        <div id="content-shop" class="hidden">
+            <div class="mb-6">
+                <h2 class="font-extrabold text-3xl tracking-tight">Tienda • Paga con USDC en Solana</h2>
+                <p class="text-slate-500">Precios ajustados para ROI saludable (~30 días)</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                
+                <!-- Frutilla Bebé (para jugadores con poco dinero) -->
+                <div class="berry-card bg-white border border-pink-100 rounded-3xl p-6">
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <span class="text-4xl">🍓</span>
+                        <div class="flex-1">
+                            <div class="font-extrabold text-xl">Frutilla Bebé</div>
+                            <div class="text-[10px] text-pink-600 font-bold">PERMANENTE • Ideal para empezar</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 text-xs mb-4">
+                        <div class="bg-pink-50 rounded-2xl p-2 text-center">
+                            <div class="text-pink-500 text-[9px]">ROI</div>
+                            <div class="font-black text-pink-700">~18 días</div>
+                        </div>
+                        <div class="bg-pink-50 rounded-2xl p-2 text-center">
+                            <div class="text-pink-500 text-[9px]">Por hora</div>
+                            <div class="font-black text-pink-700">0.012 USDC</div>
+                        </div>
+                        <div class="bg-pink-50 rounded-2xl p-2 text-center">
+                            <div class="text-pink-500 text-[9px]">Cosecha</div>
+                            <div class="font-black text-pink-700">+0.07 / 6h</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-baseline justify-between mb-3">
+                        <div>
+                            <span class="font-black text-3xl text-pink-600">5.00</span>
+                            <span class="font-bold text-sm">USDC</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="buyPermanentPlant('baby', 5)" class="w-full py-3 bg-pink-600 hover:bg-pink-700 text-white font-extrabold rounded-3xl text-sm flex items-center justify-center gap-x-2 active:scale-[0.985]">
+                        <i class="fa-brands fa-solana mr-2"></i>
+                        <span>Comprar Planta</span>
+                    </button>
+                </div>
+
+                <div class="berry-card bg-white border border-emerald-100 rounded-3xl p-6">
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <span class="text-4xl">🍓</span>
+                        <div class="flex-1">
+                            <div class="font-extrabold text-xl">Frutilla Básica</div>
+                            <div class="text-[10px] text-emerald-600 font-bold">PERMANENTE</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 text-xs mb-4">
+                        <div class="bg-emerald-50 rounded-2xl p-2 text-center">
+                            <div class="text-emerald-500 text-[9px]">ROI</div>
+                            <div class="font-black text-emerald-700">~21 días</div>
+                        </div>
+                        <div class="bg-emerald-50 rounded-2xl p-2 text-center">
+                            <div class="text-emerald-500 text-[9px]">Por hora</div>
+                            <div class="font-black text-emerald-700">0.035 USDC</div>
+                        </div>
+                        <div class="bg-emerald-50 rounded-2xl p-2 text-center">
+                            <div class="text-emerald-500 text-[9px]">Cosecha</div>
+                            <div class="font-black text-emerald-700">+0.28 / 8h</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-baseline justify-between mb-3">
+                        <div>
+                            <span class="font-black text-3xl text-emerald-600">18.00</span>
+                            <span class="font-bold text-sm">USDC</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="buyPermanentPlant('basic', 18)" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-3xl text-sm flex items-center justify-center gap-x-2 active:scale-[0.985]">
+                        <i class="fa-brands fa-solana mr-2"></i>
+                        <span>Comprar Planta</span>
+                    </button>
+                </div>
+
+                <!-- Rápida -->
+                <div class="berry-card bg-white border border-sky-100 rounded-3xl p-6">
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <span class="text-4xl">⚡</span>
+                        <div class="flex-1">
+                            <div class="font-extrabold text-xl">Frutilla Rápida</div>
+                            <div class="text-[10px] text-sky-600 font-bold">PERMANENTE</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 text-xs mb-4">
+                        <div class="bg-sky-50 rounded-2xl p-2 text-center">
+                            <div class="text-sky-500 text-[9px]">ROI</div>
+                            <div class="font-black text-sky-700">~14 días</div>
+                        </div>
+                        <div class="bg-sky-50 rounded-2xl p-2 text-center">
+                            <div class="text-sky-500 text-[9px]">Por hora</div>
+                            <div class="font-black text-sky-700">0.044 USDC</div>
+                        </div>
+                        <div class="bg-sky-50 rounded-2xl p-2 text-center">
+                            <div class="text-sky-500 text-[9px]">Cosecha</div>
+                            <div class="font-black text-sky-700">+0.22 / 5h</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-baseline justify-between mb-3">
+                        <div>
+                            <span class="font-black text-3xl text-sky-600">15.00</span>
+                            <span class="font-bold text-sm">USDC</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="buyPermanentPlant('rapid', 15)" class="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-extrabold rounded-3xl text-sm flex items-center justify-center gap-x-2 active:scale-[0.985]">
+                        <i class="fa-brands fa-solana mr-2"></i>
+                        <span>Comprar Planta</span>
+                    </button>
+                </div>
+
+                <!-- Premium -->
+                <div class="berry-card bg-white border border-purple-100 rounded-3xl p-6">
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <span class="text-4xl">🍒</span>
+                        <div class="flex-1">
+                            <div class="font-extrabold text-xl">Frutilla Premium</div>
+                            <div class="text-[10px] text-purple-600 font-bold">PERMANENTE</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 text-xs mb-4">
+                        <div class="bg-purple-50 rounded-2xl p-2 text-center">
+                            <div class="text-purple-500 text-[9px]">ROI</div>
+                            <div class="font-black text-purple-700">~41 días</div>
+                        </div>
+                        <div class="bg-purple-50 rounded-2xl p-2 text-center">
+                            <div class="text-purple-500 text-[9px]">Por hora</div>
+                            <div class="font-black text-purple-700">0.068 USDC</div>
+                        </div>
+                        <div class="bg-purple-50 rounded-2xl p-2 text-center">
+                            <div class="text-purple-500 text-[9px]">Cosecha</div>
+                            <div class="font-black text-purple-700">+0.82 / 12h</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-baseline justify-between mb-3">
+                        <div>
+                            <span class="font-black text-3xl text-purple-600">68.00</span>
+                            <span class="font-bold text-sm">USDC</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="buyPermanentPlant('premium', 68)" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-extrabold rounded-3xl text-sm flex items-center justify-center gap-x-2 active:scale-[0.985]">
+                        <i class="fa-brands fa-solana mr-2"></i>
+                        <span>Comprar Planta</span>
+                    </button>
+                </div>
+
+                <!-- Élite -->
+                <div class="berry-card bg-white border border-amber-100 rounded-3xl p-6">
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <span class="text-4xl">🍇</span>
+                        <div class="flex-1">
+                            <div class="font-extrabold text-xl">Frutilla Élite</div>
+                            <div class="text-[10px] text-amber-600 font-bold">PERMANENTE</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 text-xs mb-4">
+                        <div class="bg-amber-50 rounded-2xl p-2 text-center">
+                            <div class="text-amber-500 text-[9px]">ROI</div>
+                            <div class="font-black text-amber-700">~80 días</div>
+                        </div>
+                        <div class="bg-amber-50 rounded-2xl p-2 text-center">
+                            <div class="text-amber-500 text-[9px]">Por hora</div>
+                            <div class="font-black text-amber-700">0.065 USDC</div>
+                        </div>
+                        <div class="bg-amber-50 rounded-2xl p-2 text-center">
+                            <div class="text-amber-500 text-[9px]">Cosecha</div>
+                            <div class="font-black text-amber-700">+1.55 / 24h</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-baseline justify-between mb-3">
+                        <div>
+                            <span class="font-black text-3xl text-amber-600">125.00</span>
+                            <span class="font-bold text-sm">USDC</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="buyPermanentPlant('elite', 125)" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white font-extrabold rounded-3xl text-sm flex items-center justify-center gap-x-2 active:scale-[0.985]">
+                        <i class="fa-brands fa-solana mr-2"></i>
+                        <span>Comprar Planta</span>
+                    </button>
+                </div>
+
+                <!-- Removed old seed cards (Azul and Dorada) - now only permanent plants -->
+
+                <!-- Cleaned remaining old seed cards -->
+
+                <div class="berry-card bg-white border border-orange-200 rounded-3xl p-6">
+                    <div class="flex items-center gap-x-3 mb-4">
+                        <span class="text-4xl">🧪</span>
+                        <div>
+                            <div class="font-extrabold text-xl">Insumos Antiplagas</div>
+                            <div class="text-xs text-orange-500">Pack de 4 usos</div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-baseline gap-x-2">
+                            <span class="font-black text-3xl text-orange-600">9.50</span>
+                            <span class="font-bold">USDC</span>
+                        </div>
+                        <div class="text-emerald-600 text-sm font-medium">≈ 9.5 USD</div>
+                    </div>
+                    <button onclick="buyWithUSDC('Insumos Antiplagas', 9.50, 'insumos', 4)" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-extrabold rounded-3xl text-sm flex items-center justify-center gap-x-2 active:scale-[0.985]">
+                        <i class="fa-brands fa-solana mr-2"></i>
+                        <span>Comprar con USDC</span>
+                    </button>
+                </div>
+
+                <div class="berry-card bg-white border border-sky-200 rounded-3xl p-6">
+                    <div class="flex items-center gap-x-3 mb-4">
+                        <span class="text-4xl">💧</span>
+                        <div>
+                            <div class="font-extrabold text-xl">Pack de Agua</div>
+                            <div class="text-xs text-sky-500">50 unidades de agua</div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-baseline gap-x-2">
+                            <span class="font-black text-3xl text-sky-600">4.50</span>
+                            <span class="font-bold">USDC</span>
+                        </div>
+                        <div class="text-emerald-600 text-sm font-medium">≈ 4.5 USD</div>
+                    </div>
+                    <button onclick="buyWater(50, 4.50)" class="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-extrabold rounded-3xl text-sm flex items-center justify-center gap-x-2 active:scale-[0.985]">
+                        <i class="fa-brands fa-solana mr-2"></i>
+                        <span>Comprar Agua</span>
+                    </button>
+                </div>
+
+                <!-- Parcela Extra card removed as requested -->
+
+                <!-- Raiding Tools -->
+                <div class="berry-card bg-white border border-orange-200 rounded-3xl p-6">
+                    <div class="flex items-center gap-x-3 mb-4">
+                        <span class="text-4xl">🦴</span>
+                        <div>
+                            <div class="font-extrabold text-xl">Hueso para Perro</div>
+                            <div class="text-xs text-orange-500">Reduce riesgo en granjas de Alto peligro</div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-baseline gap-x-2">
+                            <span class="font-black text-3xl text-orange-600">4.50</span>
+                            <span class="font-bold">USDC</span>
+                        </div>
+                    </div>
+                    <button onclick="buyRaidTool('dogBone', 4.50)" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-extrabold rounded-3xl text-sm flex items-center justify-center gap-x-2 active:scale-[0.985]">
+                        <i class="fa-brands fa-solana mr-2"></i>
+                        <span>Comprar Hueso</span>
+                    </button>
+                </div>
+
+                <div class="berry-card bg-white border border-orange-200 rounded-3xl p-6">
+                    <div class="flex items-center gap-x-3 mb-4">
+                        <span class="text-4xl">🥷</span>
+                        <div>
+                            <div class="font-extrabold text-xl">Kit de Sigilo</div>
+                            <div class="text-xs text-orange-500">+22% probabilidad de éxito en asaltos</div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-baseline gap-x-2">
+                            <span class="font-black text-3xl text-orange-600">9.00</span>
+                            <span class="font-bold">USDC</span>
+                        </div>
+                    </div>
+                    <button onclick="buyRaidTool('stealthKit', 9.00)" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-extrabold rounded-3xl text-sm flex items-center justify-center gap-x-2 active:scale-[0.985]">
+                        <i class="fa-brands fa-solana mr-2"></i>
+                        <span>Comprar Kit</span>
+                    </button>
+                </div>
+
+                <!-- Upgrade: Regadera Premium (Permanent) -->
+                <div class="berry-card bg-white border border-emerald-300 rounded-3xl p-6">
+                    <div class="flex items-center gap-x-3 mb-4">
+                        <span class="text-4xl">🪣</span>
+                        <div>
+                            <div class="font-extrabold text-xl">Regadera Premium</div>
+                            <div class="text-xs text-emerald-600">Riega TODAS tus plantas con solo 1 agua</div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-baseline gap-x-2">
+                            <span class="font-black text-3xl text-emerald-600">65.00</span>
+                            <span class="font-bold">USDC</span>
+                        </div>
+                        <div class="text-xs text-emerald-600">Mejora permanente • Muy poderosa</div>
+                    </div>
+                    <button onclick="buyUpgrade('premiumWateringCan', 65)" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-3xl text-sm flex items-center justify-center gap-x-2 active:scale-[0.985]">
+                        <i class="fa-brands fa-solana mr-2"></i>
+                        <span>Comprar (Permanente)</span>
+                    </button>
+                </div>
+
+                <!-- Espantapájaros (Permanent Global Upgrade) -->
+                <div class="berry-card bg-white border border-amber-200 rounded-3xl p-6">
+                    <div class="flex items-center gap-x-3 mb-4">
+                        <span class="text-4xl">🧍‍♂️</span>
+                        <div>
+                            <div class="font-extrabold text-xl">Espantapájaros</div>
+                            <div class="text-xs text-amber-600">Protege todas tus plantas</div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-baseline gap-x-2">
+                            <span class="font-black text-3xl text-amber-600">45.00</span>
+                            <span class="font-bold">USDC</span>
+                        </div>
+                        <div class="text-xs text-amber-600">Mejora permanente (global)</div>
+                    </div>
+                    <button onclick="buyPermanentScarecrow(45)" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white font-extrabold rounded-3xl text-sm flex items-center justify-center gap-x-2 active:scale-[0.985]">
+                        <i class="fa-brands fa-solana mr-2"></i>
+                        <span>Comprar (Permanente)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- REFERRALS TAB -->
+        <div id="content-referrals" class="hidden">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="font-extrabold text-3xl tracking-tight mb-2">Invita y Gana</h2>
+                <p class="text-slate-500 mb-6">Gana el <span class="font-extrabold text-emerald-600">5%</span> de todo lo que gaste la gente que invites.</p>
+
+                <div class="bg-white border border-emerald-200 rounded-3xl p-7 mb-6">
+                    <div class="mb-5">
+                        <div class="text-sm text-emerald-600 font-bold mb-1">Tu código de referido</div>
+                        <div class="flex items-center gap-x-3">
+                            <div id="referral-code" class="flex-1 font-mono text-2xl font-extrabold bg-emerald-50 border border-emerald-200 px-6 py-3 rounded-3xl"></div>
+                            <button onclick="copyReferralCode()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-3xl flex items-center gap-x-2 active:scale-[0.985]">
+                                <i class="fa-solid fa-copy"></i>
+                                <span>Copiar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-3xl p-4 text-center">
+                            <div class="text-xs text-emerald-600">Personas invitadas</div>
+                            <div id="referral-count" class="font-black text-4xl text-emerald-700">0</div>
+                        </div>
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-3xl p-4 text-center">
+                            <div class="text-xs text-emerald-600">Ganado con referidos</div>
+                            <div id="referral-earned" class="font-black text-4xl text-emerald-700">0.00</div>
+                            <div class="text-xs text-emerald-600">USDC</div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-emerald-100 pt-5">
+                        <div class="text-sm text-emerald-600 font-bold mb-2">¿Te invitó alguien?</div>
+                        <div class="flex gap-x-3">
+                            <input id="referral-input" type="text" placeholder="Ingresa el código de tu amigo" 
+                                   class="flex-1 px-5 py-3 border border-emerald-200 rounded-3xl font-mono text-sm focus:outline-none">
+                            <button onclick="claimReferralBonus()" class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-3xl active:scale-[0.985]">
+                                Reclamar
+                            </button>
+                        </div>
+                        <div class="text-xs text-slate-400 mt-2">Solo puedes usar un código una vez. Ganas +1.5 USDC de bienvenida.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WITHDRAWALS TAB -->
+        <div id="content-withdrawals" class="hidden">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="font-extrabold text-3xl tracking-tight mb-2">Retiros</h2>
+                <p class="text-slate-500 mb-6">Puedes solicitar retiro cada 15 días.</p>
+
+                <div class="bg-white border border-emerald-200 rounded-3xl p-7 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <div class="text-sm text-emerald-600">Saldo disponible</div>
+                            <div class="font-black text-5xl text-emerald-700 tabular-nums" id="withdrawable-balance">124.50</div>
+                            <div class="text-emerald-600">USDC</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-emerald-600">Próximo retiro</div>
+                            <div class="font-extrabold text-2xl text-emerald-700" id="next-withdrawal">En 12 días</div>
+                        </div>
+                    </div>
+
+                    <button onclick="requestWithdrawal()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-lg rounded-3xl flex items-center justify-center gap-x-3 active:scale-[0.985]">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Solicitar Retiro</span>
+                    </button>
+                </div>
+
+                <div class="bg-white border border-emerald-100 rounded-3xl p-6">
+                    <div class="font-extrabold text-lg mb-4">Historial de Retiros</div>
+                    <div id="withdrawal-history" class="space-y-3 text-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPLORE / ABANDONED FARMS TAB -->
+        <div id="content-explore" class="hidden">
+            <div class="max-w-5xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="font-extrabold text-3xl tracking-tight">Zona Olvidada</h2>
+                        <p class="text-slate-500">Granjas abandonadas • Puedes robar, pero hay riesgo</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-orange-500">Las granjas cambian en</div>
+                        <div id="farms-refresh-timer" class="font-extrabold text-orange-600">4h 12m</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="abandoned-farms-grid">
+                    <!-- Populated dynamically by JS -->
+                </div>
+
+                <div class="mt-8 bg-white border border-orange-200 rounded-3xl p-6">
+                    <div class="font-extrabold text-xl text-orange-700 mb-3">⚠️ Cómo funciona el asalto</div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <div class="font-bold text-orange-600">Peligro Bajo</div>
+                            <div class="text-slate-600">Alta probabilidad de éxito. Si te atrapan pierdes un poco de Agua.</div>
+                        </div>
+                        <div>
+                            <div class="font-bold text-orange-600">Peligro Medio</div>
+                            <div class="text-slate-600">Buena recompensa. Riesgo moderado de perder Agua.</div>
+                        </div>
+                        <div>
+                            <div class="font-bold text-orange-600">Peligro Alto</div>
+                            <div class="text-slate-600">Mejores recompensas. Alto riesgo de que te atrapen.</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-xs text-slate-500">
+                        Usa <strong>Hueso para Perro</strong> o <strong>Kit de Sigilo</strong> de la tienda para mejorar tus probabilidades.
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="js/script.js"></script>
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[999] space-y-2"></div>
+
+   <script src="js/script.js"></script>
 </body>
 </html>
